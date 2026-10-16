@@ -1,0 +1,1408 @@
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local playerGui = game:GetService("Players").LocalPlayer.PlayerGui
+local TweenService = game:GetService("TweenService")
+local UserInputService = game:GetService("UserInputService")
+local HttpService = game:GetService("HttpService")
+local DialogueController = require(ReplicatedStorage.DialogueController)
+local GachaWindow = require(ReplicatedStorage.Controllers.UI.GachaWindow)
+local commF = ReplicatedStorage.Remotes.CommF_
+local open = GachaWindow.Open
+local TextUtil = require(ReplicatedStorage.Modules.Util.TextUtil)
+local localPlayer = game:GetService("Players").LocalPlayer
+local str2 = "https://vault.fe4r.click/getkey/start"
+
+local function fn4()
+	local ok3, result3 = pcall(function()
+		return gethwid()
+	end)
+
+	if ok3 and result3 and result3 ~= "" then
+		return tostring(result3)
+	end
+	return "uid-" .. tostring(localPlayer.UserId)
+end
+
+local v = fn4()
+
+local function fn5(arg)
+	local request_ = syn and syn.request or http_request or request or fluxus and fluxus.request
+	local request_2
+
+	if request_ then
+		request_2 = request_
+	else
+		request_2 = krnl and krnl.request
+	end
+
+	if not request_2 then
+		return nil
+	end
+	local ok3, result3 = pcall(request_2, arg)
+	if not ok3 or not result3 or not result3.Body then
+		return nil
+	end
+
+	local ok4, result4 = pcall(function()
+		return HttpService:JSONDecode(result3.Body)
+	end)
+
+	if not ok4 then
+		return nil
+	end
+	return result4
+end
+
+local function fn6(arg, arg2)
+	return fn5({
+		Url = arg,
+		Method = "POST",
+		Headers = { ["Content-Type"] = "application/json" },
+		Body = HttpService:JSONEncode(arg2),
+	})
+end
+
+local function fn7(arg)
+	return fn5({ Url = arg, Method = "GET" })
+end
+
+local function fn8(arg)
+	local validate = fn6("https://vault.fe4r.click/api/v2/key/validate", { key = arg, hwid = v })
+	if not validate then
+		return false
+	end
+	return validate.valid == true
+end
+
+local function fn9()
+	local ok3, result3 = pcall(function()
+		if isfile and isfile("fe4r_key_cache.txt") then
+			return readfile("fe4r_key_cache.txt")
+		end
+		return nil
+	end)
+
+	if ok3 and result3 and result3 ~= "" and fn8(result3) then
+		return true
+	end
+	return false
+end
+
+local function fn10(arg)
+	pcall(function()
+		if writefile then
+			writefile("fe4r_key_cache.txt", arg)
+		end
+	end)
+end
+
+local function fn11()
+
+	local tbl2 = {
+		bg = Color3.fromRGB(15, 17, 22),
+		field = Color3.fromRGB(22, 25, 34),
+		line = Color3.fromRGB(42, 45, 54),
+		text = Color3.fromRGB(242, 244, 247),
+		sub = Color3.fromRGB(139, 147, 161),
+		accent = Color3.fromRGB(139, 92, 246),
+		bad = Color3.fromRGB(255, 120, 120),
+		good = Color3.fromRGB(146, 220, 160),
+	}
+
+	local function fn12(arg, arg2, color)
+		Instance.new("UICorner", arg).CornerRadius = UDim.new(0, arg2)
+
+		if color then
+			local uiStroke = Instance.new("UIStroke", arg)
+			uiStroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+			uiStroke.Color = color
+			uiStroke.Thickness = 1
+		end
+	end
+
+	local function createTextLabel(parent, text, textSize, textColor3, font, position, size)
+		local textLabel = Instance.new("TextLabel")
+		textLabel.BackgroundTransparency = 1
+		textLabel.Text = text
+		textLabel.TextColor3 = textColor3
+		textLabel.Font = font
+		textLabel.TextSize = textSize
+		textLabel.TextXAlignment = Enum.TextXAlignment.Left
+		textLabel.Position = position
+		textLabel.Size = size
+		textLabel.Parent = parent
+		return textLabel
+	end
+
+	local function createTextButton(parent, text, arg, backgroundColor3, textColor3, font, arg2)
+		local textButton = Instance.new("TextButton")
+		textButton.Size = UDim2.new(1, -32, 0, 36)
+		textButton.Position = UDim2.new(0, 16, 0, arg)
+		textButton.BackgroundColor3 = backgroundColor3
+		textButton.Text = text
+		textButton.TextColor3 = textColor3
+		textButton.Font = font
+		textButton.TextSize = 13
+		textButton.AutoButtonColor = false
+		textButton.Parent = parent
+		fn12(textButton, 9, arg2)
+		return textButton
+	end
+
+	local screenGui = Instance.new("ScreenGui")
+	screenGui.Name = "FE4R_KeyGate"
+	screenGui.ResetOnSpawn = false
+	screenGui.DisplayOrder = 2000
+	screenGui.IgnoreGuiInset = true
+	screenGui.Parent = playerGui
+	local frame = Instance.new("Frame")
+	frame.Size = UDim2.fromScale(1, 1)
+	frame.BackgroundColor3 = Color3.fromRGB(8, 8, 12)
+	frame.BackgroundTransparency = 0.25
+	frame.BorderSizePixel = 0
+	frame.Parent = screenGui
+	local frame2 = Instance.new("Frame")
+	frame2.Size = UDim2.new(0, 300, 0, 232)
+	frame2.AnchorPoint = Vector2.new(0.5, 0.5)
+	frame2.Position = UDim2.new(0.5, 0, 0.5, 0)
+	frame2.BackgroundColor3 = tbl2.bg
+	frame2.BorderSizePixel = 0
+	frame2.Parent = frame
+	fn12(frame2, 12, tbl2.line)
+	local udim2 = UDim2.new
+	createTextLabel(frame2, "Key System", 15, tbl2.text, Enum.Font.GothamBold, UDim2.new(0, 16, 0, 14), udim2(1, -32, 0, 20))
+	local udim22 = UDim2.new
+	createTextLabel(frame2, "Get a free key to continue.", 12, tbl2.sub, Enum.Font.Gotham, UDim2.new(0, 16, 0, 34), udim22(1, -32, 0, 16))
+	local getKey = createTextButton(frame2, "Get key", 62, tbl2.bg, tbl2.text, Enum.Font.GothamMedium, tbl2.line)
+	local textBox = Instance.new("TextBox")
+	textBox.Size = UDim2.new(1, -32, 0, 36)
+	textBox.Position = UDim2.new(0, 16, 0, 108)
+	textBox.BackgroundColor3 = tbl2.field
+	textBox.PlaceholderText = "Paste your key"
+	textBox.PlaceholderColor3 = tbl2.sub
+	textBox.Text = ""
+	textBox.TextColor3 = tbl2.text
+	textBox.Font = Enum.Font.Gotham
+	textBox.TextSize = 13
+	textBox.TextXAlignment = Enum.TextXAlignment.Left
+	textBox.ClearTextOnFocus = false
+	textBox.Parent = frame2
+	Instance.new("UIPadding", textBox).PaddingLeft = UDim.new(0, 12)
+	fn12(textBox, 9, tbl2.line)
+	local gothamBold = Enum.Font.GothamBold
+	local verify = createTextButton(frame2, "Verify", 154, tbl2.accent, Color3.fromRGB(255, 255, 255), gothamBold)
+	local udim23 = UDim2.new
+	local v2 = createTextLabel(frame2, "", 11, tbl2.sub, Enum.Font.Gotham, UDim2.new(0, 16, 0, 198), udim23(1, -32, 0, 24))
+	v2.TextWrapped = true
+	v2.TextYAlignment = Enum.TextYAlignment.Top
+
+	getKey.MouseButton1Click:Connect(function()
+		v2.TextColor3 = tbl2.sub
+		v2.Text = "Generating link..."
+		local v3 = fn7(str2 .. "?hwid=" .. v)
+
+		if not v3 or not v3.link then
+			v2.TextColor3 = tbl2.bad
+			v2.Text = "Couldn't generate link, try again."
+			return
+		end
+
+		local ok3 = pcall(function()
+			setclipboard(v3.link)
+		end)
+
+		v2.TextColor3 = ok3 and tbl2.good or tbl2.bad
+		v2.Text = ok3 and "Link copied. Paste it into your browser." or "Your executor doesn't support copying links."
+	end)
+
+	local flag3 = false
+
+	verify.MouseButton1Click:Connect(function()
+		local text = textBox.Text
+
+		if not text or text == "" then
+			v2.TextColor3 = tbl2.bad
+			v2.Text = "Enter a key first."
+			return
+		end
+
+		v2.TextColor3 = tbl2.sub
+		v2.Text = "Checking..."
+
+		if fn8(text) then
+			fn10(text)
+			flag3 = true
+			v2.TextColor3 = tbl2.good
+			v2.Text = "Key verified."
+		else
+			v2.TextColor3 = tbl2.bad
+			v2.Text = "Invalid or expired key."
+		end
+	end)
+
+	repeat
+		task.wait(0.2)
+	until flag3
+
+	screenGui:Destroy()
+end
+
+local function fn12()
+	local ok3, result3 = pcall(function()
+		local ItemReplicationService = require(ReplicatedStorage.ItemReplicationService)
+		local KEYS = require(ReplicatedStorage.ItemReplicationService.KEYS)
+		local ItemConfig = require(ReplicatedStorage.ItemConfig)
+		local items = ItemReplicationService:GetItems(KEYS.IS_OWNED)
+		local items2 = ItemReplicationService:GetItems(KEYS.QUANTITY)
+		local items3 = ItemReplicationService:GetItems(KEYS.PREFERRED_MUTATION)
+		local tbl2 = {}
+
+		if type(items2) == "table" then
+			for _, v2 in pairs(items2) do
+				if v2.ItemId then
+					tbl2[v2.ItemId] = v2.Value
+				end
+			end
+		end
+
+		local tbl3 = {}
+
+		if type(items3) == "table" then
+			for _, v2 in pairs(items3) do
+				if v2.ItemId and v2.Value and v2.Value ~= "" then
+					tbl3[v2.ItemId] = true
+				end
+			end
+		end
+
+		local tbl4 = {}
+
+		if type(items) == "table" then
+			for _, item in pairs(items) do
+				if item.Value == true and item.ItemId then
+					local ok3, result3 = pcall(function()
+						return ItemConfig.tryGet(item.ItemId)
+					end)
+
+					if ok3 and type(result3) == "table" and result3.Display and result3.Display.Category == "Blox Fruit" then
+						local storageKey = result3.Index and result3.Index.StorageKey
+						local name = result3.Display.Name
+						storageKey = name and name ~= "" and name or storageKey or ""
+						local idType = result3.Index and result3.Index.IdType
+						local str3
+
+						if idType == "PhysicalMoveset" then
+							str3 = tbl3[item.ItemId] and "Mutated Fruit" or "Blox Fruit"
+						else
+							str3 = nil
+
+							if idType == "Redeemable" then
+								str3 = "Premium"
+							end
+						end
+
+						if str3 then
+							table.insert(tbl4, {
+								ItemId = item.ItemId,
+								Id = item.ItemId,
+								Name = result3.Index and result3.Index.StorageKey or storageKey,
+								DisplayName = storageKey,
+								Type = str3,
+								Rarity = result3.Quality and result3.Quality.RarityValue or 0,
+								Value = result3.Quality and result3.Quality.MoneyPrice or 0,
+								Count = tbl2[item.ItemId] or 1,
+							})
+						end
+					end
+				end
+			end
+		end
+
+		return tbl4
+	end)
+
+	if not ok3 then
+		warn("[BF Spinner] getInventory failed:", result3)
+		return {}
+	end
+	return result3 or {}
+end
+
+local tbl2 = { boostLuck = false, bypassTime = false, bypassCash = false }
+
+local function fn13()
+	return HttpService:GenerateGUID(false)
+end
+
+local tbl3 = { [0] = "Common", "Uncommon", "Rare", "Legendary", "Mythical" }
+
+local tbl4 = {
+	[0] = Color3.fromRGB(179, 179, 179),
+	Color3.fromRGB(92, 140, 211),
+	Color3.fromRGB(140, 82, 255),
+	Color3.fromRGB(213, 43, 228),
+	(Color3.fromRGB(255, 50, 50)),
+}
+
+local ItemId = require(ReplicatedStorage.Economy.ItemId)
+local ItemConfig = require(ReplicatedStorage.ItemConfig)
+
+local function fn14(arg)
+	local str3 = arg .. "-" .. arg
+
+	local ok3, result3 = pcall(function()
+		return ItemId.getId(str3, "PhysicalMoveset"):asNullable()
+	end)
+
+	if not ok3 or not result3 then
+		return nil
+	end
+	local itemId = type(result3) == "table" and (result3.ItemId or result3.Id) or result3
+
+	local ok4, result4 = pcall(function()
+		return ItemConfig.tryGet(itemId)
+	end)
+
+	if ok4 and type(result4) == "table" and result4.Display and result4.Display.Sprite then
+		return result4.Display.Sprite
+	end
+	return nil
+end
+
+local function fn15(arg)
+	local str3 = arg .. "-" .. arg
+
+	local ok3, result3 = pcall(function()
+		return ItemId.getId(str3, "PhysicalMoveset"):asNullable()
+	end)
+
+	if not ok3 or not result3 then
+		return nil
+	end
+	return type(result3) == "table" and (result3.ItemId or result3.Id) or result3
+end
+
+local tbl5 = {}
+
+local function fn16(arg, arg2)
+	local str3 = arg .. "-" .. arg
+	local v2 = fn14(arg)
+	local image, imageRectOffset, imageRectSize
+
+	if v2 then
+		image = v2.Image
+		imageRectOffset = v2.ImageRectOffset or Vector2.new(0, 0)
+		imageRectSize = v2.ImageRectSize or Vector2.new(0, 0)
+	else
+		warn("[BF Spinner] Khong tra duoc sprite cho: " .. tostring(arg))
+		imageRectSize = Vector2.new(0, 0)
+		imageRectOffset = Vector2.new(0, 0)
+		image = nil
+	end
+
+	tbl5[str3] = arg
+
+	return {
+		StorageName = str3,
+		DisplayName = arg,
+		ImageName = str3,
+		ItemId = fn15(arg),
+		Image = image,
+		ImageRectOffset = imageRectOffset,
+		ImageRectSize = imageRectSize,
+		Rarity = { Name = tbl3[arg2], Value = arg2, Color = tbl4[arg2] },
+		Attributes = {},
+		Filter = nil,
+		ItemType = "Item",
+		Awards = nil,
+		_UID = fn13(),
+	}
+end
+
+local tbl6 = {}
+local Spin = fn16("Spin", 0)
+local Smoke = fn16("Smoke", 0)
+local Blade = fn16("Blade", 0)
+local Bomb = fn16("Bomb", 0)
+local Spike = fn16("Spike", 0)
+local Rocket = fn16("Rocket", 0)
+local Sand = fn16("Sand", 1)
+local Ice = fn16("Ice", 1)
+local Flame = fn16("Flame", 1)
+local Dark = fn16("Dark", 1)
+local Eagle = fn16("Eagle", 1)
+local Light = fn16("Light", 2)
+local Rubber = fn16("Rubber", 2)
+local Magma = fn16("Magma", 2)
+local Buddha = fn16("Buddha", 3)
+local Portal = fn16("Portal", 3)
+local Lightning = fn16("Lightning", 3)
+local Pain = fn16("Pain", 3)
+local Shadow = fn16("Shadow", 4)
+local Control = fn16("Control", 4)
+local Tiger = fn16("Tiger", 4)
+local Gravity = fn16("Gravity", 4)
+local v2 = fn16("Dragon (East)", 4)
+local Gas = fn16("Gas", 4)
+local Kitsune = fn16("Kitsune", 4)
+local Dough = fn16("Dough", 4)
+local Yeti = fn16("Yeti", 4)
+local v3 = fn16("Dragon (West)", 4)
+local v4 = fn16("T-Rex", 4)
+local Mammoth = fn16("Mammoth", 4)
+local Spirit = fn16("Spirit", 4)
+local Venom = fn16("Venom", 4)
+tbl6[1] = Spin
+tbl6[2] = Smoke
+tbl6[3] = Blade
+tbl6[4] = Bomb
+tbl6[5] = Spike
+tbl6[6] = Rocket
+tbl6[7] = Sand
+tbl6[8] = Ice
+tbl6[9] = Flame
+tbl6[10] = Dark
+tbl6[11] = Eagle
+tbl6[12] = Light
+tbl6[13] = Rubber
+tbl6[14] = Magma
+tbl6[15] = Buddha
+tbl6[16] = Portal
+tbl6[17] = Lightning
+tbl6[18] = Pain
+tbl6[19] = Shadow
+tbl6[20] = Control
+tbl6[21] = Tiger
+tbl6[22] = Gravity
+tbl6[23] = v2
+tbl6[24] = Gas
+tbl6[25] = Kitsune
+tbl6[26] = Dough
+tbl6[27] = Yeti
+tbl6[28] = v3
+tbl6[29] = v4
+tbl6[30] = Mammoth
+tbl6[31] = Spirit
+tbl6[32] = Venom
+
+pcall(function()
+	local SpinnerUtil = require(ReplicatedStorage.Controllers.UI.Spinner.SpinnerUtil)
+	local applyImage = SpinnerUtil.applyImage
+
+	SpinnerUtil.applyImage = function(arg, arg2, arg3, arg4, arg5)
+		local v5 = tbl5[arg2]
+
+		if v5 then
+			local v6 = fn14(v5)
+
+			if v6 then
+				arg.Image = v6.Image
+				arg.ImageRectOffset = v6.ImageRectOffset or Vector2.new(0, 0)
+				arg.ImageRectSize = v6.ImageRectSize or Vector2.new(0, 0)
+				return v6
+			end
+		end
+
+		return applyImage(arg, arg2, arg3, arg4, arg5)
+	end
+end)
+
+local tbl7 = {}
+local tbl8 = {}
+
+for _, v5 in pairs(tbl6) do
+	if v5.Rarity.Value == 4 then
+		table.insert(tbl7, v5)
+	else
+		table.insert(tbl8, v5)
+	end
+end
+
+local tbl9 = {}
+local replicatedFruits = playerGui:FindFirstChild("__ReplicatedFruits") or Instance.new("Folder")
+replicatedFruits.Name = "__ReplicatedFruits"
+replicatedFruits.Parent = playerGui
+local tbl10 = {}
+local tbl11 = {}
+local flag3 = false
+
+local function fn17(arg, arg2, arg3)
+	local str3, str4
+
+	if arg3 == "Dragon (East)" then
+		str3 = "Dragon-Dragon"
+		str4 = "East"
+	else
+		str3 = arg2
+		str4 = nil
+	end
+
+	local function fn18(arg4)
+		return (arg4:match("^(.+)%-") or arg4):gsub("_", " ")
+	end
+
+	local function fn19()
+		task.spawn(function()
+			local character = localPlayer.Character
+			local animator = character:FindFirstChildWhichIsA("Humanoid"):FindFirstChildWhichIsA("Animator")
+			local animation = Instance.new("Animation")
+			animation.AnimationId = "rbxassetid://10851812420"
+			local v5 = animator:LoadAnimation(animation)
+			v5.Priority = Enum.AnimationPriority.Action
+			v5:Play()
+			local sound = Instance.new("Sound")
+			sound.SoundId = "rbxassetid://11568102939"
+			sound.Volume = 2
+			sound.Parent = character:FindFirstChild("HumanoidRootPart")
+			sound:Play()
+
+			sound.Ended:Connect(function()
+				sound:Destroy()
+			end)
+
+			task.wait(3)
+			local flag4 = arg.Parent == character and arg or nil
+
+			if flag4 and flag4:IsA("Tool") then
+				flag4:Destroy()
+			end
+
+			if str4 then
+				commF:InvokeServer("SwitchFruit", str3, str4)
+			else
+				commF:InvokeServer("SwitchFruit", str3)
+			end
+		end)
+	end
+
+	local function fn20()
+		if DialogueController.Active then
+			return
+		end
+		local v5 = DialogueController.new()
+		v5:setTitle("Blox Fruit")
+
+		v5:addPage("Main", function(arg4)
+			arg4:addText("What do you wish to do with this Blox Fruit?<AnimateYield=3>")
+
+			arg4:addOptionType("Chat", function(arg5)
+				arg5:setText("Eat")
+
+				arg5:jumpToPage(function(arg6)
+					local str5 = ""
+
+					pcall(function()
+						str5 = localPlayer.Data.DevilFruit.Value
+					end)
+
+					if str5 == "" then
+						fn19()
+						arg6:addText("[Eating Blox Fruit.]")
+						arg6:advanceAfterDelay(1.5)
+						return
+					end
+
+					local str6 = "><Color=/> with <Color=Yellow><" .. arg3 .. "><Color=/>. Are you sure?"
+					arg6:addText("This will replace your <Color=Yellow><" .. fn18(str5) .. str6)
+
+					arg6:addOptionType("Chat", function(arg7)
+						arg7:setText("Confirm")
+
+						arg7:jumpToPage(function(arg8)
+							fn19()
+							arg8:addText("[Eating Blox Fruit.]")
+							arg8:advanceAfterDelay(1.5)
+						end)
+					end)
+
+					arg6:addOptionType("Chat", function(arg7)
+						arg7:setText("Cancel")
+
+						arg7:jumpToPage(function(arg8)
+							arg8:addText("...")
+							arg8:advanceAfterDelay(0.3)
+						end)
+					end)
+				end)
+			end)
+
+			arg4:addOptionType("Chat", function(arg5)
+				arg5:setText("Drop")
+
+				arg5:jumpToPage(function(arg6)
+					task.spawn(function()
+						task.wait()
+						local character = localPlayer.Character
+						local humanoid = character:FindFirstChildWhichIsA("Humanoid")
+						local flag4 = arg.Parent == character and arg or nil
+						if not flag4 or not flag4:IsA("Tool") then
+							return
+						end
+						local handle = flag4:FindFirstChild("Handle")
+						local cFrame = handle and handle.CFrame or character:FindFirstChild("HumanoidRootPart").CFrame
+						humanoid:UnequipTools()
+						task.wait(0.1)
+						flag4.CanBeDropped = true
+						flag4.Parent = workspace
+
+						if handle then
+							handle.CFrame = cFrame * CFrame.new(0, 0, -1.5)
+							handle.CanCollide = true
+						end
+
+						local v6 = flag4
+						local flag5 = false
+						local connection3 = nil
+
+						connection3 = game:GetService("RunService").Heartbeat:Connect(function()
+							if flag5 then
+								return
+							end
+							local humanoidRootPart = character and character:FindFirstChild("HumanoidRootPart")
+							if not humanoidRootPart or not handle or not handle.Parent then
+								connection3:Disconnect()
+								return
+							end
+
+							if (humanoidRootPart.Position - handle.Position).Magnitude < 3.5 then
+								flag5 = true
+								connection3:Disconnect()
+								task.wait(0.1)
+
+								if handle then
+									handle.CanCollide = false
+								end
+
+								v6.CanBeDropped = false
+								v6.Parent = localPlayer.Backpack
+								task.wait()
+								humanoid:EquipTool(v6)
+							end
+						end)
+					end)
+
+					arg6:addText("[Blox Fruit dropped.]")
+					arg6:advanceAfterDelay(1.5)
+				end)
+			end)
+
+			arg4:addOptionType("Chat", function(arg5)
+				arg5:setText("Store")
+
+				arg5:jumpToPage(function(arg6)
+					arg6:addText("idk, update later. discord.gg/mozil")
+					arg6:advanceAfterDelay(1.5)
+				end)
+			end)
+		end)
+
+		v5:build()
+		DialogueController.start(v5)
+	end
+
+	arg.Activated:Connect(function()
+		local ok3, result3 = pcall(fn20)
+
+		if not ok3 then
+			warn("[X10Lucky] fruit dialogue failed:", result3)
+		end
+	end)
+end
+
+local function fn18(arg)
+	local v5 = tbl11[arg.StorageName]
+	local fruit = v5 and v5:FindFirstChild("Fruit")
+	local itemId = arg.ItemId
+	if not fruit or not itemId then
+		return
+	end
+
+	local ok3, name = pcall(function()
+		return ItemConfig.tryGet(itemId).Index.DebugLabel
+	end)
+
+	if not ok3 or type(name) ~= "string" or name == "" then
+		name = arg.StorageName .. " [PhysicalMoveset-" .. tostring(itemId) .. "]"
+	end
+
+	local replicatedSpinnerInstances = playerGui:FindFirstChild("__ReplicatedSpinnerInstances")
+
+	if not replicatedSpinnerInstances then
+		replicatedSpinnerInstances = Instance.new("ScreenGui")
+		replicatedSpinnerInstances.Name = "__ReplicatedSpinnerInstances"
+		replicatedSpinnerInstances.ResetOnSpawn = false
+		replicatedSpinnerInstances.Parent = playerGui
+	end
+
+	local v6 = replicatedSpinnerInstances:FindFirstChild(name)
+
+	if v6 then
+		v6:Destroy()
+	end
+
+	local clone = fruit:Clone()
+
+	for _, descendant in ipairs(clone:GetDescendants()) do
+		if descendant:IsA("LuaSourceContainer") then
+			descendant:Destroy()
+		end
+	end
+
+	clone.Name = name
+	local rootPart = clone:FindFirstChild("RootPart")
+
+	if rootPart and not rootPart:IsA("BasePart") then
+		rootPart = nil
+	end
+
+	clone.PrimaryPart = rootPart or clone.PrimaryPart or clone:FindFirstChildWhichIsA("BasePart", true)
+	if not clone.PrimaryPart then
+		clone:Destroy()
+		return
+	end
+	clone:SetAttribute("ItemId", itemId)
+	clone:SetAttribute("__Size", clone:GetExtentsSize())
+	clone.Parent = replicatedSpinnerInstances
+
+	task.spawn(function()
+		local Spinner = require(ReplicatedStorage.Controllers.UI.Spinner)
+		local now = tick()
+
+		while tick() - now < 5 and not Spinner:IsOpen() do
+			task.wait(0.1)
+		end
+
+		while tick() - now < 600 and Spinner:IsOpen() do
+			task.wait(0.5)
+		end
+
+		if clone.Parent then
+			clone:Destroy()
+		end
+	end)
+end
+
+local function fn19(arg, arg2)
+	local v5 = arg and tbl9 or tbl8
+	local v6 = v5[math.random(1, #v5)]
+
+	task.spawn(function()
+		if arg and tbl10[v6.StorageName] then
+			local storageName = v6.StorageName
+			local v7 = tbl11[storageName]
+
+			if v7 then
+				local clone = v7:Clone()
+				clone.Name = v6.DisplayName .. " Fruit"
+				clone:SetAttribute("X10Fake", true)
+				fn17(clone, storageName, v6.DisplayName)
+				clone.Parent = localPlayer.Backpack
+
+				clone.Equipped:Connect(function()
+					local fruit = clone:FindFirstChild("Fruit")
+					if not fruit then
+						return
+					end
+					local animationController = fruit:FindFirstChildWhichIsA("AnimationController")
+					if not animationController then
+						return
+					end
+					local animator = animationController:FindFirstChildWhichIsA("Animator")
+					local animation = fruit:FindFirstChildWhichIsA("Animation", true)
+
+					if animator and animation then
+						local v8 = animator:LoadAnimation(animation)
+						v8.Looped = true
+						v8:Play()
+					end
+				end)
+			end
+		end
+
+		local ok3, result3 = pcall(fn18, v6)
+
+		if not ok3 then
+			warn("[X10Lucky] injectPreviewModel failed:", result3)
+		end
+
+		local ok4, result4 = pcall(function()
+			require(ReplicatedStorage.Controllers.UI.Spinner):Open({ v6 }, tbl6, "ZiolesGacha")
+		end)
+
+		if not ok4 then
+			warn("[X10Lucky] Spinner:Open failed:", result4)
+		end
+
+		if arg2 then
+			arg2()
+		end
+	end)
+end
+
+local function fn20(arg)
+	return game.Players.LocalPlayer.Data.Beli.Value >= arg
+end
+
+local n2 = 0
+local flag4 = false
+local text = nil
+local tbl12 = {}
+
+local tbl13 = {
+	btn = Color3.fromRGB(50, 185, 65),
+	stroke = Color3.fromRGB(27, 112, 36),
+	trans = Color3.fromRGB(76, 214, 90),
+}
+
+local tbl14 = {}
+
+local function fn21()
+	return tbl2.bypassCash or tbl2.bypassTime
+end
+
+local function fn22(arg, arg2, arg3)
+	if tbl14[arg] then
+		return
+	end
+	local tbl15 = { prop = arg2, orig = arg[arg2], want = arg3 }
+
+	tbl15.conn = arg:GetPropertyChangedSignal(arg2):Connect(function()
+		if arg[arg2] ~= tbl15.want then
+			tbl15.orig = arg[arg2]
+			arg[arg2] = tbl15.want
+		end
+	end)
+
+	tbl14[arg] = tbl15
+	arg[arg2] = arg3
+end
+
+local function fn23()
+	for k, v5 in pairs(tbl14) do
+		v5.conn:Disconnect()
+
+		if k.Parent then
+			k[v5.prop] = v5.orig
+		end
+	end
+
+	tbl14 = {}
+end
+
+local function fn24(arg)
+	fn22(arg, "BackgroundColor3", tbl13.btn)
+	local uiStroke = arg:FindFirstChildOfClass("UIStroke")
+
+	if uiStroke then
+		fn22(uiStroke, "Color", tbl13.stroke)
+	end
+
+	local trans = arg:FindFirstChild("Trans")
+
+	if trans and trans:IsA("Frame") then
+		fn22(trans, "BackgroundColor3", tbl13.trans)
+	end
+end
+
+local function fn25(arg)
+	if tbl12[arg] then
+		return
+	end
+	local tbl15 = { orig = arg.Text }
+
+	tbl15.conn = arg:GetPropertyChangedSignal("Text"):Connect(function()
+		if text then
+			if arg.Text ~= text then
+				tbl15.orig = arg.Text
+				arg.Text = text
+			end
+		else
+			tbl15.orig = arg.Text
+		end
+	end)
+
+	tbl12[arg] = tbl15
+
+	if text then
+		arg.Text = text
+	end
+end
+
+local function fn26(text2)
+	text = text2
+
+	for k, v5 in pairs(tbl12) do
+		if k.Parent then
+			k.Text = text2 or v5.orig
+		end
+	end
+end
+
+local function fn27()
+	text = nil
+
+	for k, v5 in pairs(tbl12) do
+		v5.conn:Disconnect()
+
+		if k.Parent then
+			k.Text = v5.orig
+		end
+	end
+
+	tbl12 = {}
+	fn23()
+end
+
+local function fn28(parent)
+	local fakeOverlay = parent:FindFirstChild("FakeOverlay")
+
+	if fakeOverlay then
+		fakeOverlay:Destroy()
+	end
+
+	local flag5 = false
+	local textButton = Instance.new("TextButton")
+	textButton.Name = "FakeOverlay"
+	textButton.Size = UDim2.fromScale(1, 1)
+	textButton.BackgroundTransparency = 1
+	textButton.Text = ""
+	textButton.ZIndex = 100
+	textButton.Parent = parent
+
+	textButton.Activated:Connect(function()
+		if flag5 then
+			return
+		end
+
+		if not tbl2.bypassCash and not fn20(n2) then
+			fn26(("Need $%s more"):format(TextUtil.commaValue(n2 - game.Players.LocalPlayer.Data.Beli.Value)))
+
+			task.delay(2, function()
+				if textButton.Parent then
+					fn26(tbl2.bypassCash and "FREE" or nil)
+				end
+			end)
+
+			return
+		end
+
+		flag5 = true
+
+		task.delay(0.5, function()
+			flag4 = false
+			textButton:Destroy()
+
+			pcall(function()
+				GachaWindow:Close()
+			end)
+
+			task.delay(0.5, function()
+				local ok3, result3 = pcall(function()
+					return GachaWindow:IsOpen()
+				end)
+
+				local ziolesGachaWindow = playerGui:FindFirstChild("ZiolesGacha_Window")
+
+				if ziolesGachaWindow and ziolesGachaWindow.Enabled and (not ok3 or result3) then
+					ziolesGachaWindow.Enabled = false
+				end
+			end)
+
+			fn19(tbl2.boostLuck)
+		end)
+	end)
+
+	for _, descendant in ipairs(parent:GetDescendants()) do
+		if descendant:IsA("TextLabel") then
+			fn25(descendant)
+		end
+	end
+
+	if fn21() then
+		fn24(parent)
+	end
+end
+
+local function fn29(arg)
+	if arg.Name == "PurchaseButton" and arg:IsA("GuiButton") then
+		if arg:FindFirstAncestor("ZiolesGacha_Window") and not arg:FindFirstChild("FakeOverlay") then
+			fn28(arg)
+		end
+	elseif arg:IsA("TextLabel") and arg:FindFirstAncestor("PurchaseButton") and arg:FindFirstAncestor("ZiolesGacha_Window") then
+		fn25(arg)
+	elseif fn21() and arg.Parent and arg.Parent.Name == "PurchaseButton" and arg:FindFirstAncestor("ZiolesGacha_Window") then
+		if arg:IsA("UIStroke") then
+			fn22(arg, "Color", tbl13.stroke)
+		elseif arg.Name == "Trans" and arg:IsA("Frame") then
+			fn22(arg, "BackgroundColor3", tbl13.trans)
+		end
+	end
+end
+
+playerGui.DescendantAdded:Connect(function(descendant)
+	if flag4 then
+		fn29(descendant)
+	end
+end)
+
+GachaWindow.Open = function(arg, arg2, arg3, ...)
+	if arg2 == "ZiolesGacha" then
+		fn27()
+		flag4 = false
+
+		if tbl2.boostLuck or tbl2.bypassCash or tbl2.bypassTime then
+			n2 = type(arg3) == "table" and tonumber(arg3.Value) or 0
+			flag4 = true
+			text = tbl2.bypassCash and "FREE" or nil
+			local ziolesGachaWindow = playerGui:FindFirstChild("ZiolesGacha_Window")
+
+			if ziolesGachaWindow then
+				for _, descendant in ipairs(ziolesGachaWindow:GetDescendants()) do
+					if descendant.Name == "FakeOverlay" then
+						descendant:Destroy()
+					end
+				end
+
+				for _, descendant in ipairs(ziolesGachaWindow:GetDescendants()) do
+					fn29(descendant)
+				end
+			end
+		end
+	end
+
+	if arg2 == "ZiolesGacha" and flag4 then
+		for _, v5 in ipairs({ 0, 0.05, 0.15, 0.3, 0.6 }) do
+			task.delay(v5, function()
+				if not flag4 then
+					return
+				end
+				local ziolesGachaWindow = playerGui:FindFirstChild("ZiolesGacha_Window")
+
+				if ziolesGachaWindow then
+					for _, descendant in ipairs(ziolesGachaWindow:GetDescendants()) do
+						fn29(descendant)
+					end
+				end
+			end)
+		end
+	end
+
+	local v5 = table.pack(...)
+	local v6 = open
+	v5.n = 4 + v5.n - 1
+	table.move(v5, 1, v5.n, 4, v5)
+	v5[1] = arg
+	v5[2] = arg2
+	v5[3] = arg3
+	return v6(table.unpack(v5, 1, v5.n))
+end
+
+local x10LuckyUI = playerGui:FindFirstChild("X10LuckyUI")
+
+if x10LuckyUI then
+	x10LuckyUI:Destroy()
+end
+
+local x10LoadingUI = playerGui:FindFirstChild("X10LoadingUI")
+
+if x10LoadingUI then
+	x10LoadingUI:Destroy()
+end
+
+local screenGui = Instance.new("ScreenGui")
+screenGui.Name = "X10LuckyUI"
+screenGui.ResetOnSpawn = false
+screenGui.DisplayOrder = 999
+screenGui.IgnoreGuiInset = true
+screenGui.Enabled = false
+screenGui.Parent = playerGui
+local frame = Instance.new("Frame")
+frame.Size = UDim2.new(0, 230, 0, 190)
+frame.Position = UDim2.new(0, 10, 0.5, -95)
+frame.BackgroundColor3 = Color3.fromRGB(10, 18, 35)
+frame.BorderSizePixel = 0
+frame.Parent = screenGui
+Instance.new("UICorner", frame).CornerRadius = UDim.new(0, 12)
+local uiStroke = Instance.new("UIStroke", frame)
+uiStroke.Color = Color3.fromRGB(40, 90, 180)
+uiStroke.Thickness = 1.5
+local frame2 = Instance.new("Frame")
+frame2.Size = UDim2.new(1, 0, 0, 38)
+frame2.BackgroundColor3 = Color3.fromRGB(18, 32, 60)
+frame2.BorderSizePixel = 0
+frame2.Parent = frame
+Instance.new("UICorner", frame2).CornerRadius = UDim.new(0, 12)
+local textLabel = Instance.new("TextLabel")
+textLabel.Size = UDim2.fromScale(1, 1)
+textLabel.BackgroundTransparency = 1
+textLabel.Text = "✨  X100 Lucky Script"
+textLabel.TextColor3 = Color3.fromRGB(60, 130, 255)
+textLabel.Font = Enum.Font.GothamBold
+textLabel.TextSize = 16
+textLabel.Parent = frame2
+local flag5 = nil
+local position = nil
+local position2 = nil
+
+frame2.InputBegan:Connect(function(input)
+	if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+		flag5 = true
+		position = input.Position
+		position2 = frame.Position
+	end
+end)
+
+UserInputService.InputChanged:Connect(function(input)
+	if flag5 and (input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch) then
+		local n3 = input.Position - position
+		frame.Position = UDim2.new(position2.X.Scale, position2.X.Offset + n3.X, position2.Y.Scale, position2.Y.Offset + n3.Y)
+	end
+end)
+
+UserInputService.InputEnded:Connect(function(input)
+	if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+		flag5 = false
+	end
+end)
+
+local tbl15 = {}
+local tbl16 = { key = "boostLuck", label = "🍀 Boost Luck", color = Color3.fromRGB(80, 200, 80) }
+local tbl17 = { key = "bypassTime", label = "⏰ Bypass Waiting Time", color = Color3.fromRGB(80, 160, 255) }
+local tbl18 = { key = "bypassCash", label = "💰 Bypass Cash", color = Color3.fromRGB(255, 200, 50) }
+tbl15[1] = tbl16
+tbl15[2] = tbl17
+tbl15[3] = tbl18
+local frame3 = Instance.new("Frame")
+frame3.Size = UDim2.new(1, -20, 1, -48)
+frame3.Position = UDim2.new(0, 10, 0, 44)
+frame3.BackgroundTransparency = 1
+frame3.Parent = frame
+Instance.new("UIListLayout", frame3).Padding = UDim.new(0, 8)
+
+for _, v5 in ipairs(tbl15) do
+	local frame4 = Instance.new("Frame")
+	frame4.Size = UDim2.new(1, 0, 0, 38)
+	frame4.BackgroundColor3 = Color3.fromRGB(25, 45, 85)
+	frame4.BorderSizePixel = 0
+	frame4.Parent = frame3
+	Instance.new("UICorner", frame4).CornerRadius = UDim.new(0, 8)
+	local textLabel2 = Instance.new("TextLabel")
+	textLabel2.Size = UDim2.new(1, -60, 1, 0)
+	textLabel2.Position = UDim2.new(0, 12, 0, 0)
+	textLabel2.BackgroundTransparency = 1
+	textLabel2.Text = v5.label
+	textLabel2.TextColor3 = Color3.fromRGB(220, 235, 255)
+	textLabel2.Font = Enum.Font.Gotham
+	textLabel2.TextSize = 13
+	textLabel2.TextXAlignment = Enum.TextXAlignment.Left
+	textLabel2.Parent = frame4
+	local textButton = Instance.new("TextButton")
+	textButton.Size = UDim2.new(0, 46, 0, 26)
+	textButton.AnchorPoint = Vector2.new(1, 0.5)
+	textButton.Position = UDim2.new(1, -10, 0.5, 0)
+	textButton.BackgroundColor3 = Color3.fromRGB(90, 110, 150)
+	textButton.BorderSizePixel = 0
+	textButton.Text = ""
+	textButton.Parent = frame4
+	Instance.new("UICorner", textButton).CornerRadius = UDim.new(1, 0)
+	local frame5 = Instance.new("Frame")
+	frame5.Size = UDim2.new(0, 20, 0, 20)
+	frame5.AnchorPoint = Vector2.new(0, 0.5)
+	frame5.Position = UDim2.new(0, 3, 0.5, 0)
+	frame5.BackgroundColor3 = Color3.fromRGB(200, 220, 255)
+	frame5.BorderSizePixel = 0
+	frame5.Parent = textButton
+	Instance.new("UICorner", frame5).CornerRadius = UDim.new(1, 0)
+
+	local function fn30(arg)
+		tbl2[v5.key] = arg
+		TweenService:Create(textButton, TweenInfo.new(0.15), { BackgroundColor3 = arg and v5.color or Color3.fromRGB(90, 110, 150) }):Play()
+
+		TweenService:Create(frame5, TweenInfo.new(0.15), {
+			Position = arg and UDim2.new(1, -23, 0.5, 0) or UDim2.new(0, 3, 0.5, 0),
+			BackgroundColor3 = arg and Color3.new(1, 1, 1) or Color3.fromRGB(200, 220, 255),
+		}):Play()
+	end
+
+	textButton.Activated:Connect(function()
+		fn30(not tbl2[v5.key])
+	end)
+end
+
+local screenGui2 = Instance.new("ScreenGui")
+screenGui2.Name = "X10LoadingUI"
+screenGui2.ResetOnSpawn = false
+screenGui2.DisplayOrder = 1000
+screenGui2.IgnoreGuiInset = true
+screenGui2.Parent = playerGui
+local frame4 = Instance.new("Frame")
+frame4.Size = UDim2.fromScale(1, 1)
+frame4.BackgroundColor3 = Color3.fromRGB(8, 8, 12)
+frame4.BackgroundTransparency = 0.25
+frame4.BorderSizePixel = 0
+frame4.Parent = screenGui2
+local frame5 = Instance.new("Frame")
+frame5.Size = UDim2.new(0, 300, 0, 88)
+frame5.AnchorPoint = Vector2.new(0.5, 0.5)
+frame5.Position = UDim2.new(0.5, 0, 0.5, 0)
+frame5.BackgroundColor3 = Color3.fromRGB(15, 17, 22)
+frame5.BorderSizePixel = 0
+frame5.Parent = frame4
+Instance.new("UICorner", frame5).CornerRadius = UDim.new(0, 12)
+local uiStroke2 = Instance.new("UIStroke", frame5)
+uiStroke2.Color = Color3.fromRGB(42, 45, 54)
+uiStroke2.Thickness = 1
+local textLabel2 = Instance.new("TextLabel")
+textLabel2.Size = UDim2.new(1, -32, 0, 18)
+textLabel2.Position = UDim2.new(0, 16, 0, 14)
+textLabel2.BackgroundTransparency = 1
+textLabel2.Text = "Loading fruit models"
+textLabel2.TextColor3 = Color3.fromRGB(242, 244, 247)
+textLabel2.Font = Enum.Font.Gotham
+textLabel2.TextSize = 13
+textLabel2.TextXAlignment = Enum.TextXAlignment.Left
+textLabel2.Parent = frame5
+local frame6 = Instance.new("Frame")
+frame6.Size = UDim2.new(1, -32, 0, 4)
+frame6.Position = UDim2.new(0, 16, 0, 42)
+frame6.BackgroundColor3 = Color3.fromRGB(42, 45, 54)
+frame6.BorderSizePixel = 0
+frame6.Parent = frame5
+Instance.new("UICorner", frame6).CornerRadius = UDim.new(1, 0)
+local frame7 = Instance.new("Frame")
+frame7.Size = UDim2.fromScale(0, 1)
+frame7.BackgroundColor3 = Color3.fromRGB(60, 130, 255)
+frame7.BorderSizePixel = 0
+frame7.Parent = frame6
+Instance.new("UICorner", frame7).CornerRadius = UDim.new(1, 0)
+local textLabel3 = Instance.new("TextLabel")
+textLabel3.Size = UDim2.new(1, -32, 0, 16)
+textLabel3.Position = UDim2.new(0, 16, 0, 56)
+textLabel3.BackgroundTransparency = 1
+textLabel3.Text = "Please wait..."
+textLabel3.TextColor3 = Color3.fromRGB(139, 147, 161)
+textLabel3.Font = Enum.Font.Gotham
+textLabel3.TextSize = 11
+textLabel3.TextXAlignment = Enum.TextXAlignment.Left
+textLabel3.Parent = frame5
+
+for _, v5 in ipairs({ localPlayer.Backpack, localPlayer.Character }) do
+	for _, child in ipairs(v5:GetChildren()) do
+		if child:IsA("Tool") and child:GetAttribute("X10Fake") then
+			child:Destroy()
+		end
+	end
+end
+
+task.spawn(function()
+	local character = localPlayer.Character or localPlayer.CharacterAdded:Wait()
+	local v5 = fn12()
+	local tbl19 = {}
+
+	for _, v6 in pairs(v5) do
+		local flag6 = v6.Type == "Blox Fruit"
+
+		if flag6 then
+			flag6 = (v6.Rarity or 0) == 4
+		end
+
+		if flag6 then
+			table.insert(tbl19, v6)
+		end
+	end
+
+	local n3 = #tbl19
+	textLabel2.Text = "Syncing inventory data..."
+	textLabel3.Text = string.format("Found %d items to process", n3)
+
+	for i, v6 in ipairs(tbl19) do
+		local name = v6.Name or v6.DisplayName .. "-" .. v6.DisplayName
+		local displayName = v6.DisplayName or name
+		textLabel2.Text = string.format("Loading fruit models  %d/%d", i, n3)
+		textLabel3.Text = "Models only, your items stay safe."
+		TweenService:Create(frame7, TweenInfo.new(0.2), { Size = UDim2.fromScale((i - 1) / n3, 1) }):Play()
+
+		if replicatedFruits:FindFirstChild(name) then
+			tbl10[name] = true
+		else
+			pcall(function()
+				commF:InvokeServer("LoadFruit", name)
+			end)
+
+			local v7 = nil
+			local now = tick()
+
+			while tick() - now < 3 do
+				local v8 = localPlayer.Backpack:FindFirstChild(displayName .. " Fruit") or localPlayer.Backpack:FindFirstChild(v6.Name .. " Fruit")
+
+				if v8 then
+					v7 = v8
+					break
+				else
+					task.wait(0.1)
+				end
+			end
+
+			if v7 then
+				local clone = v7:Clone()
+				clone.Name = name
+				clone.Parent = replicatedFruits
+				tbl10[name] = true
+
+				pcall(function()
+					local humanoid = character:FindFirstChildWhichIsA("Humanoid")
+
+					if humanoid then
+						humanoid:EquipTool(v7)
+						task.wait(1)
+						local v8 = workspace.Characters:FindFirstChild(localPlayer.Name)
+
+						if v8 then
+							v8 = v8:FindFirstChild(displayName .. " Fruit") or v8:FindFirstChild(v6.Name .. " Fruit")
+						end
+
+						if v8 then
+							local clone2 = v8:Clone()
+							clone2.Name = name
+							local fruit = clone2:FindFirstChild("Fruit")
+							local rootPart = fruit and fruit:FindFirstChild("RootPart")
+
+							if rootPart then
+								for _, descendant in ipairs(fruit:GetDescendants()) do
+									if descendant:IsA("BasePart") and descendant ~= rootPart then
+										if not descendant:FindFirstChildWhichIsA("WeldConstraint") then
+											local weldConstraint = Instance.new("WeldConstraint")
+											weldConstraint.Part0 = rootPart
+											weldConstraint.Part1 = descendant
+											weldConstraint.Parent = descendant
+										end
+									end
+								end
+							end
+
+							tbl11[name] = clone2
+							commF:InvokeServer("StoreFruit", name, v8)
+						end
+					end
+				end)
+
+				task.wait(0.8)
+			end
+		end
+	end
+
+	for i = #tbl9, 1, -1 do
+		tbl9[i] = nil
+	end
+
+	for _, v6 in ipairs(tbl7) do
+		if tbl10[v6.StorageName] then
+			table.insert(tbl9, v6)
+		end
+	end
+
+	warn("[X10Lucky] MYTH pool:", #tbl9, "entries")
+	flag3 = true
+	screenGui2:Destroy()
+	screenGui.Enabled = true
+	warn("[X10Lucky] Preload done:", n3, "mythicals")
+end)
